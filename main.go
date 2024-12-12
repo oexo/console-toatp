@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	"github.com/xlzd/gotp"
 )
 
 type toatp struct {
@@ -12,20 +15,13 @@ type toatp struct {
 	Key  string
 }
 
-func getKeyByName(name string, sl []toatp) {
-	for k, _ := range sl {
-		if name == sl[k].Name {
-			fmt.Println(sl[k].Key)
+func getKeyByName(name string, sl *[]toatp) (string, error) {
+	for _, v := range *sl {
+		if name == v.Name {
+			return v.Key, nil
 		}
 	}
-}
-
-func testPointers(sl *[]toatp) {
-	//fmt.Println(*sl)
-	fmt.Println(*sl)
-	for _, v := range *sl {
-		fmt.Println(v)
-	}
+	return "", errors.New("TOATP Not find")
 }
 
 func main() {
@@ -35,13 +31,17 @@ func main() {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	fmt.Println(string(content))
+	// fmt.Println(string(content))
 	var toatps []toatp
 	json.Unmarshal([]byte(content), &toatps)
-	fmt.Printf("Birds : %+v \n", toatps)
-	fmt.Println(toatps[0].Name)
-	getKeyByName("test 0", toatps)
+	//	fmt.Printf("Birds : %+v \n", toatps)
+	//	fmt.Println(toatps[0].Name)
+	key, err := getKeyByName("test 0", &toatps)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	testPointers(&toatps)
+	// testPointers(&toatps)
+	fmt.Println("Current OTP is", gotp.NewDefaultTOTP(key).Now())
 
 }
