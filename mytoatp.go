@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/xlzd/gotp"
 )
@@ -21,27 +22,22 @@ func getKeyByName(name string, sl *[]toatp) (string, error) {
 			return v.Key, nil
 		}
 	}
-	return "", errors.New("TOATP Not find")
+	return "zero", errors.New("toatp key was not found")
 }
 
 func main() {
-	fmt.Println("vim-go")
-	content, err := ioutil.ReadFile("./keys.json")
+	content, err := ioutil.ReadFile("/Users/dg/t/golearn/toatp/keys.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	// fmt.Println(string(content))
 	var toatps []toatp
 	json.Unmarshal([]byte(content), &toatps)
-	//	fmt.Printf("Birds : %+v \n", toatps)
-	//	fmt.Println(toatps[0].Name)
-	key, err := getKeyByName("test 0", &toatps)
+	key, err := getKeyByName(os.Args[1], &toatps)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	// testPointers(&toatps)
-	fmt.Println("Current OTP is", gotp.NewDefaultTOTP(key).Now())
+	fmt.Println(gotp.NewDefaultTOTP(key).Now())
 
 }
