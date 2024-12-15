@@ -27,8 +27,8 @@ func getKeyByName(name string, sl *[]toatp) (string, error) {
 
 func getAllToatps(sl *[]toatp) {
 	for _, v := range *sl {
-		//fmt.Printf("Toatp: %s - Timer: %s - Key: %d", k, "60 sec", gotp.NewDefaultTOTP(v.Key).Now())
-		fmt.Println(string(v.Name) + " - Time: 60 sec - Key: " + string(gotp.NewDefaultTOTP(v.Key).Now()))
+		otp := gotp.NewDefaultTOTP(string(v.Key))
+		fmt.Println(string(v.Name) + " - one-time password of timestamp 0 is: " + string(otp.At(0)) + " - Current one-time password is: " + string(gotp.NewDefaultTOTP(v.Key).Now()))
 	}
 }
 
@@ -41,7 +41,13 @@ func main() {
 	var toatps []toatp
 	json.Unmarshal([]byte(content), &toatps)
 
-	ttp := os.Args[1]
+	var ttp string
+
+	if len(os.Args) > 1 {
+		ttp = os.Args[1]
+	} else {
+		ttp = "all"
+	}
 
 	if ttp == "all" {
 		getAllToatps(&toatps)
