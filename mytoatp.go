@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/xlzd/gotp"
 )
@@ -57,7 +58,14 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Println(gotp.NewDefaultTOTP(key).Now())
+		otp, expiredTimestamp := gotp.NewDefaultTOTP(key).NowWithExpiration()
+		currentTimestamp := time.Now().Unix()
+		fmt.Println(otp)
+		fmt.Println(expiredTimestamp - currentTimestamp)
+
+		//	fmt.Println(gotp.NewDefaultTOTP(key).Now())
+		//	fmt.Println(gotp.NewDefaultTOTP(key).NowWithExpiration())
+		//	fmt.Println(time.Now().Unix() )
 	}
 
 }
