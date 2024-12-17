@@ -28,8 +28,8 @@ func getKeyByName(name string, sl *[]toatp) (string, error) {
 
 func getAllToatps(sl *[]toatp) {
 	for _, v := range *sl {
-		otp := gotp.NewDefaultTOTP(string(v.Key))
-		fmt.Println(string(v.Name) + " - one-time password of timestamp 0 is: " + string(otp.At(0)) + " - Current one-time password is: " + string(gotp.NewDefaultTOTP(v.Key).Now()))
+		otp, expiredTimestamp := gotp.NewDefaultTOTP(string(v.Key)).NowWithExpiration()
+		fmt.Println("ET(sec):", expiredTimestamp-time.Now().Unix(), "- OTP:", otp, "- OTP Name:", v.Name)
 	}
 }
 
@@ -60,12 +60,10 @@ func main() {
 
 		otp, expiredTimestamp := gotp.NewDefaultTOTP(key).NowWithExpiration()
 		currentTimestamp := time.Now().Unix()
-		fmt.Println(otp)
-		fmt.Println(expiredTimestamp - currentTimestamp)
+		l := log.New(os.Stderr, "", 0)
+		l.Println("ET(sec):", expiredTimestamp-currentTimestamp)
+		fmt.Printf(otp)
 
-		//	fmt.Println(gotp.NewDefaultTOTP(key).Now())
-		//	fmt.Println(gotp.NewDefaultTOTP(key).NowWithExpiration())
-		//	fmt.Println(time.Now().Unix() )
 	}
 
 }
