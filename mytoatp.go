@@ -23,7 +23,7 @@ func getKeyByName(name string, sl *[]toatp) (string, error) {
 			return v.Key, nil
 		}
 	}
-	return "zero", errors.New("toatp key was not found")
+	return "zero", errors.New("toatp key " + name + " was not found")
 }
 
 func getAllToatps(sl *[]toatp) {
@@ -31,6 +31,16 @@ func getAllToatps(sl *[]toatp) {
 		otp, expiredTimestamp := gotp.NewDefaultTOTP(string(v.Key)).NowWithExpiration()
 		fmt.Println("ET(sec):", expiredTimestamp-time.Now().Unix(), "- OTP:", otp, "- OTP Name:", v.Name)
 	}
+}
+
+func addNewTotp(name string, key string, sl *[]toatp) {
+	newTotp := toatp{Name: name, Key: key}
+	*sl = append(*sl, newTotp)
+	jsonData, err := json.Marshal(*sl)
+	if err != nil {
+		panic(err)
+	}
+	ioutil.WriteFile("/Users/dg/t/golearn/toatp/keys.json", jsonData, 0644)
 }
 
 func main() {
@@ -42,17 +52,8 @@ func main() {
 	var toatps []toatp
 	json.Unmarshal([]byte(content), &toatps)
 
-	var ttp string
-
-	if len(os.Args) > 1 {
-		ttp = os.Args[1]
-	} else {
-		ttp = "all"
-	}
-
-	if ttp == "all" {
-		getAllToatps(&toatps)
-	} else {
+	switch len(os.Args) {
+	case 2:
 		key, err := getKeyByName(os.Args[1], &toatps)
 		if err != nil {
 			log.Fatal(err)
@@ -63,7 +64,10 @@ func main() {
 		l := log.New(os.Stderr, "", 0)
 		l.Println("ET(sec):", expiredTimestamp-currentTimestamp)
 		fmt.Printf(otp)
-
+	case 4:
+		addNewTotp(os.Args[2], os.Args[3], &toatps)
+	default:
+		getAllToatps(&toatps)
 	}
 
 }
