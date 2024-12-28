@@ -43,6 +43,18 @@ func addNewTotp(name string, key string, sl *[]toatp) {
 	ioutil.WriteFile("/Users/dg/t/golearn/toatp/keys.json", jsonData, 0644)
 }
 
+func delTotp(name string, sl *[]toatp) {
+	for k, v := range *sl {
+		fmt.Println(name, v.Name)
+		if name == v.Name {
+			fmt.Println(":k", (*sl)[:k])
+			fmt.Println("k+1:", (*sl)[k+1:])
+			*sl = append((*sl)[:k], (*sl)[k+1:]...)
+			fmt.Println(sl)
+		}
+	}
+}
+
 func main() {
 	content, err := ioutil.ReadFile("/Users/dg/t/golearn/toatp/keys.json")
 	if err != nil {
