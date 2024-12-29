@@ -45,14 +45,15 @@ func addNewTotp(name string, key string, sl *[]toatp) {
 
 func delTotp(name string, sl *[]toatp) {
 	for k, v := range *sl {
-		fmt.Println(name, v.Name)
 		if name == v.Name {
-			fmt.Println(":k", (*sl)[:k])
-			fmt.Println("k+1:", (*sl)[k+1:])
 			*sl = append((*sl)[:k], (*sl)[k+1:]...)
-			fmt.Println(sl)
 		}
 	}
+	jsonData, err := json.Marshal(*sl)
+	if err != nil {
+		panic(err)
+	}
+	ioutil.WriteFile("/Users/dg/t/golearn/toatp/keys.json", jsonData, 0644)
 }
 
 func main() {
@@ -76,8 +77,14 @@ func main() {
 		l := log.New(os.Stderr, "", 0)
 		l.Println("ET(sec):", expiredTimestamp-currentTimestamp)
 		fmt.Printf(otp)
+	case 3:
+		if os.Args[1] == "del" {
+			delTotp(os.Args[2], &toatps)
+		}
 	case 4:
-		addNewTotp(os.Args[2], os.Args[3], &toatps)
+		if os.Args[1] == "add" {
+			addNewTotp(os.Args[2], os.Args[3], &toatps)
+		}
 	default:
 		getAllToatps(&toatps)
 	}
